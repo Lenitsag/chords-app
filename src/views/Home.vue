@@ -1,33 +1,27 @@
 <template>
   <div class="home">
-    <transition name="slide-fade">
-      <h1 v-if="isMounted">Here are some cool chords for you, buddy !</h1>
-    </transition>
-    <transition name="slide-fade">
-      <ChordSelector
-        v-if="selected_note"
-        :options="fundamentals"
-        :selected_note="selected_note"
-        v-model="selected_note"
-        @note-selected="setNote"
-      />
-    </transition>
-    <transition name="slide-fade">
-      <ChordSelector
-        v-if="selected_modf"
-        :options="modf"
-        :selected_note="selected_modf"
-        v-model="selected_modf"
-        @note-selected="setModf"
-      />
-    </transition>
     <div class="home-container">
       <transition name="slide-fade">
+        <ChordSelector
+          v-if="selected_note"
+          :options="fundamentals"
+          :selected_note="selected_note"
+          v-model="selected_note"
+          @note-selected="setNote"
+        />
+      </transition>
+      <transition name="slide-fade">
+        <ChordSelector
+          v-if="selected_modf"
+          :options="modf"
+          :selected_note="selected_modf"
+          v-model="selected_modf"
+          @note-selected="setModf"
+        />
+      </transition>
+      <transition name="slide-fade">
         <div class="main-position" v-if="main_chord">
-          Main position for
-          <div class="chord-name">
-            {{ main_chord.chord + " " + main_chord.modf }}
-          </div>
+          Main position
           <Chord :Chord="main_chord" />
         </div>
       </transition>
@@ -90,12 +84,10 @@ export default {
         "9"
       ],
       selected_note: null,
-      selected_modf: null,
-      isMounted: false
+      selected_modf: null
     };
   },
   async mounted() {
-    this.isMounted = true;
     this.selected_note = "A";
     this.selected_modf = "minor";
     await this.fetchChord();
@@ -115,8 +107,8 @@ export default {
       const resp = await axios.get(
         `${this.url_base}/?request=chords&chord=${this.selected_note}&modf=${this.selected_modf}`
       );
-      this.chords = resp.data.chords.slice(1, 5);
       this.main_chord = resp.data.chords[0];
+      this.chords = resp.data.chords.slice(1, 4);
     }
   }
 };
