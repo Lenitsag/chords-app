@@ -1,17 +1,28 @@
 <template>
   <div class="home">
+    <h1>Here are some cool chords for you, buddy !</h1>
     <transition name="slide-fade">
       <ChordSelector
         v-if="selected_note"
         :options="fundamentals"
         :selected_note="selected_note"
         v-model="selected_note"
-        @note-selected="fetchChord"
+        @note-selected="setNote"
+      />
+    </transition>
+    <transition name="slide-fade">
+      <ChordSelector
+        v-if="selected_modf"
+        :options="modf"
+        :selected_note="selected_modf"
+        v-model="selected_modf"
+        @note-selected="setModf"
       />
     </transition>
     <div class="home-container">
       <transition name="slide-fade">
         <div class="main-position" v-if="main_chord">
+          Main position for
           <div class="chord-name">
             {{ main_chord.chord + " " + main_chord.modf }}
           </div>
@@ -20,7 +31,7 @@
       </transition>
       <transition name="slide-fade">
         <div v-if="chords">
-          <p>Other positions for this chord :</p>
+          <p>Other positions</p>
           <ul class="other-positions">
             <li v-for="(chordItem, index) in chords" :key="index">
               <Chord :Chord="chordItem" />
@@ -51,28 +62,74 @@ export default {
       chords: null,
       main_chord: null,
       fundamentals: ["A", "B", "C", "D", "E", "F", "G"],
-      selected_note: null
+      modf: [
+        "minor",
+        "major",
+        "aug",
+        "dim",
+        "sus",
+        "add9",
+        "m6",
+        "m7",
+        "m9",
+        "maj7",
+        "maj9",
+        "mmaj7",
+        "-5",
+        "11",
+        "13",
+        "5",
+        "6",
+        "6add9",
+        "7",
+        "7-5",
+        "7maj5",
+        "7sus4",
+        "9"
+      ],
+      selected_note: null,
+      selected_modf: null
     };
   },
   async created() {
-    await this.fetchChord("A");
+    this.selected_note = "A";
+    this.selected_modf = "minor";
+    await this.fetchChord();
   },
   methods: {
-    async fetchChord(note) {
+    async setNote(note) {
+      this.selected_note = note;
+      await this.fetchChord();
+    },
+    async setModf(modf) {
+      this.selected_modf = modf;
+      await this.fetchChord();
+    },
+    async fetchChord() {
       this.chords = null;
       this.main_chord = null;
       const resp = await axios.get(
-        `${this.url_base}/?request=chords&chord=${note}`
+        `${this.url_base}/?request=chords&chord=${this.selected_note}&modf=${this.selected_modf}`
       );
       this.chords = resp.data.chords.slice(1, 5);
       this.main_chord = resp.data.chords[0];
-      this.selected_note = note;
     }
   }
 };
 </script>
 
 <style lang="scss" scoped>
+h1 {
+  font-size: 1.2em;
+  text-transform: uppercase;
+  font-family: Helvetica, sans-serif;
+  font-weight: 200;
+  padding: 8px 0;
+  border-bottom: 1px solid #ccc;
+}
+.main-position {
+  margin-top: 15px;
+}
 .chord-name {
   font-size: 2em;
 }
@@ -83,8 +140,8 @@ export default {
 .slide-fade-leave-active {
   transition: all 0.8s cubic-bezier(1, 0.5, 0.8, 1);
 }
-.slide-fade-enter, .slide-fade-leave-to
-/* .slide-fade-leave-active below version 2.1.8 */ {
+.slide-fade-enter,
+.slide-fade-leave-to {
   transform: translateX(10px);
   opacity: 0;
 }
