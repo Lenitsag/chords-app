@@ -32,14 +32,6 @@ export default {
   outline: none;
   list-style-type: none;
 }
-h1 {
-  font-size: 1.2em;
-  text-transform: uppercase;
-  font-family: Helvetica, sans-serif;
-  font-weight: 200;
-  padding: 8px 0;
-  border-bottom: 1px solid #ccc;
-}
 .main-container {
   background: no-repeat center center fixed #000;
   background-size: cover;
@@ -53,7 +45,6 @@ h1 {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  padding: 10px;
   margin: 0 auto;
   position: relative;
   max-width: 400px;

@@ -1,6 +1,8 @@
 <template>
   <div class="home">
-    <h1>Here are some cool chords for you, buddy !</h1>
+    <transition name="slide-fade">
+      <h1 v-if="isMounted">Here are some cool chords for you, buddy !</h1>
+    </transition>
     <transition name="slide-fade">
       <ChordSelector
         v-if="selected_note"
@@ -88,10 +90,12 @@ export default {
         "9"
       ],
       selected_note: null,
-      selected_modf: null
+      selected_modf: null,
+      isMounted: false
     };
   },
-  async created() {
+  async mounted() {
+    this.isMounted = true;
     this.selected_note = "A";
     this.selected_modf = "minor";
     await this.fetchChord();
@@ -119,6 +123,17 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+h1 {
+  font-size: 1.2em;
+  text-transform: uppercase;
+  font-family: Helvetica, sans-serif;
+  font-weight: 200;
+  padding: 8px 0;
+  border-bottom: 1px solid #ccc;
+}
+.home {
+  padding: 10px;
+}
 .main-position {
   margin-top: 15px;
 }
