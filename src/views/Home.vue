@@ -119,14 +119,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-h1 {
-  font-size: 1.2em;
-  text-transform: uppercase;
-  font-family: Helvetica, sans-serif;
-  font-weight: 200;
-  padding: 8px 0;
-  border-bottom: 1px solid #ccc;
-}
 .main-position {
   margin-top: 15px;
 }

@@ -14,7 +14,7 @@
 export default {
   data() {
     return {
-      bg_index: this.randomInteger(1, 8)
+      bg_index: this.randomInteger(1, 7)
     };
   },
   methods: {
@@ -31,6 +31,14 @@ export default {
   box-sizing: border-box;
   outline: none;
   list-style-type: none;
+}
+h1 {
+  font-size: 1.2em;
+  text-transform: uppercase;
+  font-family: Helvetica, sans-serif;
+  font-weight: 200;
+  padding: 8px 0;
+  border-bottom: 1px solid #ccc;
 }
 .main-container {
   background: no-repeat center center fixed #000;
