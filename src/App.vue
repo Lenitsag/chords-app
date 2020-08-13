@@ -31,6 +31,7 @@ export default {
 body {
   background: no-repeat center center fixed #000;
   background-size: cover;
+  padding: 0 15px;
 }
 #app {
   font-family: "Monserrat", sans-serif;
