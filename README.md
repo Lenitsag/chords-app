@@ -1,4 +1,4 @@
-# dailystuff
+# Chords app
 
 ## Project setup
 ```
