@@ -132,7 +132,7 @@ h1 {
   border-bottom: 1px solid #ccc;
 }
 .home {
-  padding: 10px;
+  padding: 15px;
 }
 .main-position {
   margin-top: 15px;
