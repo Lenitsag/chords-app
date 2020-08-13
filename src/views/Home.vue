@@ -1,133 +1,72 @@
 <template>
   <div class="home">
-    <select
-      name="fundamental"
-      id="fundamental"
-      v-model="selected_note"
-      @change="fetchChord(selected_note)"
-    >
-      <option
-        v-for="(note, index) in fundamentals"
-        :key="index"
-        :value="note"
-        >{{ note }}</option
-      >
-    </select>
-    <div class="home-container" v-if="chords">
-      <div class="main-position">
-        <div class="chord-name">
-          {{ main_chord.chord + " " + main_chord.modf }}
-        </div>
-        <div class="chord-position">
-          <span v-for="string in strings" :key="string">
-            {{ main_chord[string] }}
-          </span>
-        </div>
-      </div>
-      <!-- <svg id="svg" xmlns="http://www.w3.org/2000/svg">
-        <g id="resources">
-          <radialGradient
-            id="fingering-dot-gradient"
-            cx="60%"
-            cy="40%"
-            r="50%"
-            fx="50%"
-            fy="50%"
-          >
-            <stop
-              offset="0%"
-              style="stop-color:rgb(255,0,0); stop-opacity:1"
-            ></stop>
-            <stop
-              offset="100%"
-              style="stop-color:rgb(80,0,0);stop-opacity:1"
-            ></stop>
-          </radialGradient>
-          <linearGradient
-            id="fretboard-gradient"
-            x1="0%"
-            y1="0%"
-            x2="0%"
-            y2="100%"
-          >
-            <stop offset="0%" style="stop-color:#2b2b2b"></stop>
-            <stop offset="10%" style="stop-color:#191919"></stop>
-            <stop offset="50%" style="stop-color:black"></stop>
-            <stop offset="90%" style="stop-color:#191919"></stop>
-            <stop offset="100%" style="stop-color:#2b2b2b"></stop>
-          </linearGradient>
-          <linearGradient id="head-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" style="stop-color:#3d3d3d"></stop>
-            <stop offset="10%" style="stop-color:#191919"></stop>
-            <stop offset="50%" style="stop-color:black"></stop>
-            <stop offset="90%" style="stop-color:#191919"></stop>
-            <stop offset="100%" style="stop-color:#3d3d3d"></stop>
-          </linearGradient>
-          <pattern
-            id="pearl-inlay"
-            patternUnits="userSpaceOnUse"
-            width="100"
-            height="100"
-          >
-            <image
-              xlink:href="/images/pearl-inlay.jpg"
-              x="0"
-              y="0"
-              width="100"
-              height="100"
-            ></image>
-          </pattern>
-        </g>
-        <g id="fretboard-layer"></g>
-        <g id="fingering-layer"></g>
-      </svg> -->
-      <p>Other positions for this chord :</p>
-      <ul class="other-positions">
-        <li v-for="(chordItem, index) in chords" :key="index">
-          <div class="chord-position">
-            <span
-              v-for="string in strings"
-              :key="string"
-              :class="`string-${string}`"
-            >
-              {{ chordItem[string] }}
-            </span>
+    <transition name="slide-fade">
+      <ChordSelector
+        v-if="selected_note"
+        :options="fundamentals"
+        :selected_note="selected_note"
+        v-model="selected_note"
+        @note-selected="fetchChord"
+      />
+    </transition>
+    <div class="home-container">
+      <transition name="slide-fade">
+        <div class="main-position" v-if="main_chord">
+          <div class="chord-name">
+            {{ main_chord.chord + " " + main_chord.modf }}
           </div>
-        </li>
-      </ul>
+          <Chord :Chord="main_chord" />
+        </div>
+      </transition>
+      <transition name="slide-fade">
+        <div v-if="chords">
+          <p>Other positions for this chord :</p>
+          <ul class="other-positions">
+            <li v-for="(chordItem, index) in chords" :key="index">
+              <Chord :Chord="chordItem" />
+            </li>
+          </ul>
+        </div>
+      </transition>
     </div>
   </div>
 </template>
 
 <script>
 import axios from "axios";
+import Chord from "@/components/Chord.vue";
+import ChordSelector from "@/components/ChordSelector.vue";
 
 // import Fretboard from "@/assets/js/fretboard-1.3.0.js";
 
 export default {
   name: "Home",
-  components: {},
+  components: {
+    Chord,
+    ChordSelector
+  },
   data() {
     return {
-      url_base: "http://vps-e960ed9b.vps.ovh.net/chords/index.php",
+      url_base: "http://vps-e960ed9b.vps.ovh.net/chords-api",
       chords: null,
       main_chord: null,
-      strings: ["e", "a", "d", "g", "b", "e2"],
       fundamentals: ["A", "B", "C", "D", "E", "F", "G"],
-      selected_note: "A"
+      selected_note: null
     };
   },
   async created() {
-    await this.fetchChord(this.selected_note);
-    // Fretboard.Neck.Draw(document.getElementById("svg"));
+    await this.fetchChord("A");
   },
   methods: {
-    async fetchChord(chord) {
+    async fetchChord(note) {
+      this.chords = null;
+      this.main_chord = null;
       const resp = await axios.get(
-        `${this.url_base}/?request=chords&chord=${chord}`
+        `${this.url_base}/?request=chords&chord=${note}`
       );
       this.chords = resp.data.chords.slice(1, 5);
       this.main_chord = resp.data.chords[0];
+      this.selected_note = note;
     }
   }
 };
@@ -137,20 +76,16 @@ export default {
 .chord-name {
   font-size: 2em;
 }
-.chord-position {
-  border: solid 1px #ccc;
-  max-width: 180px;
-  margin: 15px auto;
-  display: flex;
-  text-align: center;
-  flex-wrap: wrap;
-  span {
-    flex: 1;
-    background-color: #eee;
-    padding: 5px;
-    &:not(:last-child) {
-      border-right: 1px solid #ccc;
-    }
-  }
+
+.slide-fade-enter-active {
+  transition: all 0.3s ease;
+}
+.slide-fade-leave-active {
+  transition: all 0.8s cubic-bezier(1, 0.5, 0.8, 1);
+}
+.slide-fade-enter, .slide-fade-leave-to
+/* .slide-fade-leave-active below version 2.1.8 */ {
+  transform: translateX(10px);
+  opacity: 0;
 }
 </style>
