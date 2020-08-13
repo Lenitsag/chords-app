@@ -1,14 +1,7 @@
 <template>
-  <div
-    class="main-container"
-    v-bind:style="{
-      'background-image': 'url(assets/img/bg-' + bg_index + '.jpg)'
-    }"
-  >
-    <b-container fluid="md" id="app">
-      <router-view />
-    </b-container>
-  </div>
+  <b-container fluid="md" id="app">
+    <router-view />
+  </b-container>
 </template>
 <script>
 export default {
@@ -16,6 +9,9 @@ export default {
     return {
       bg_index: this.randomInteger(1, 7)
     };
+  },
+  beforeMount() {
+    document.body.classList.add("bg-" + this.bg_index);
   },
   methods: {
     randomInteger(min, max) {
@@ -32,12 +28,9 @@ export default {
   outline: none;
   list-style-type: none;
 }
-.main-container {
+body {
   background: no-repeat center center fixed #000;
   background-size: cover;
-  width: 100%;
-  height: 100vh;
-  padding: 20px;
 }
 #app {
   font-family: "Monserrat", sans-serif;
@@ -45,11 +38,17 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin: 0 auto;
+  margin: 20px auto;
   position: relative;
   max-width: 400px;
   border-radius: 10px;
   background-color: rgba(255, 255, 255, 0.9);
   box-shadow: 4px 4px 25px 0px rgba(0, 0, 0, 0.75);
+}
+
+@for $i from 1 through 7 {
+  .bg-#{$i} {
+    background-image: url(assets/img/bg-#{$i}.jpg);
+  }
 }
 </style>
