@@ -20,18 +20,16 @@
         />
       </transition>
       <transition name="slide-fade">
-        <div class="main-position" v-if="main_chord">
-          Main position
-          <Chord :Chord="main_chord" />
-        </div>
-      </transition>
-      <transition name="slide-fade">
         <div v-if="chords">
-          <p>Other positions</p>
+          <h2>Main position</h2>
+          <div id="position-main"></div>
+          <h2>Other positions</h2>
           <ul class="other-positions">
-            <li v-for="(chordItem, index) in chords" :key="index">
-              <Chord :Chord="chordItem" />
-            </li>
+            <li
+              v-for="(chordItem, index) in chords"
+              :key="index"
+              :id="`position${index}`"
+            ></li>
           </ul>
         </div>
       </transition>
@@ -41,22 +39,17 @@
 
 <script>
 import axios from "axios";
-import Chord from "@/components/Chord.vue";
+import { Fretboard } from "@moonwave99/fretboard.js";
 import ChordSelector from "@/components/ChordSelector.vue";
-
-// import Fretboard from "@/assets/js/fretboard-1.3.0.js";
 
 export default {
   name: "Home",
   components: {
-    Chord,
     ChordSelector
   },
   data() {
     return {
       url_base: "http://vps-e960ed9b.vps.ovh.net/chords-api",
-      chords: null,
-      main_chord: null,
       fundamentals: ["A", "B", "C", "D", "E", "F", "G"],
       modf: [
         "minor",
@@ -84,13 +77,20 @@ export default {
         "9"
       ],
       selected_note: null,
-      selected_modf: null
+      selected_modf: null,
+      chords: null,
+      oldChords: null
     };
   },
   async mounted() {
     this.selected_note = "A";
     this.selected_modf = "minor";
     await this.fetchChord();
+    this.setFretboard(this.main_chord, "#position-main");
+
+    for (let i = 0; i < this.chords.length; i++) {
+      this.setFretboard(this.chords[i], "#position" + i);
+    }
   },
   methods: {
     async setNote(note) {
@@ -102,13 +102,30 @@ export default {
       await this.fetchChord();
     },
     async fetchChord() {
-      this.chords = null;
-      this.main_chord = null;
       const resp = await axios.get(
         `${this.url_base}/?request=chords&chord=${this.selected_note}&modf=${this.selected_modf}`
       );
       this.main_chord = resp.data.chords[0];
       this.chords = resp.data.chords.slice(1, 4);
+    },
+    setFretboard(chord, element) {
+      const notes = [chord.e, chord.a, chord.d, chord.g, chord.b, chord.e2];
+      const fretboard = new Fretboard({
+        el: element,
+        width: 300,
+        height: 150,
+        bottomPadding: 0,
+        scaleFrets: true,
+        stringWidth: 2,
+        fretWidth: 2,
+        fretCount: 6,
+        crop: true,
+        dotSize: 20,
+        dotStrokeWidth: 2,
+        fretNumbersMargin: 30,
+        showFretNumbers: true
+      });
+      fretboard.renderChord(notes.join(""));
     }
   }
 };
@@ -125,12 +142,6 @@ h1 {
 }
 .home {
   padding: 15px;
-}
-.main-position {
-  margin-top: 15px;
-}
-.chord-name {
-  font-size: 2em;
 }
 
 .slide-fade-enter-active {
